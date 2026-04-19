@@ -20,6 +20,6 @@ file(GLOB SRC_FILES *src/*.cpp)
 add_executable(${PROJECT_NAME} main.cpp ${SRC_FILES})
 
 # Inclui o diretório de cabeçalhos para o projeto
-target_include_directories(maze-exit-search PUBLIC  ${CMAKE_SOURCE_DIR}/include)
+target_include_directories(maze-exit-search PUBLIC  ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 
