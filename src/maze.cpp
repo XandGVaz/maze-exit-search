@@ -176,13 +176,22 @@ Maze& Maze::operator =(const Maze& maze2){
 	return *this;
 }
 
-void Maze::ptintMaze(){
+void Maze::ptintMaze(bool exitPath){
 	std::set<MapPosition> pathPositions;
+	if (exitPath) {
+		// Calcula o caminho do início até a saída
+		Path path = getExitPath(_mazeMap,_mazeStart, _mazeExit);
+		for (const auto& pos : path) {
+			pathPositions.insert(pos);
+		}
+	}
 	for(long y = 0; y < _mazeY; y++){
 		for(long x = 0; x < _mazeX; x++){
-			if (y == _mazeStart.first && x == _mazeStart.second)
+			if (y == _mazeStart.first && x == _mazeStart.second) {
 				std::cout << "S"; // Símbolo de início
-			else if (_mazeMap[y][x] == 1)
+			} else if (exitPath && pathPositions.count({y, x})) {
+				std::cout << "o"; // Caminho da saída
+			} else if (_mazeMap[y][x] == 1)
 				std::cout << "█"; // Parede
 			else if (_mazeMap[y][x] == 0)
 				std::cout << " "; // Caminho
@@ -193,5 +202,15 @@ void Maze::ptintMaze(){
 		}
 		std::cout << std::endl;
 	}
+}
+
+// Função utilitária para imprimir o caminho de saída
+void Maze::printExitPath() {
+	Path path = getExitPath(_mazeMap, _mazeStart, _mazeExit);
+	std::cout << "Caminho de saída (Path):\n";
+	for (const auto& pos : path) {
+		std::cout << "(" << pos.first << ", " << pos.second << ") ";
+	}
+	std::cout << std::endl;
 }
 

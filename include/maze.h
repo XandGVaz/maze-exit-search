@@ -4,6 +4,8 @@
 #include <vector>
 #include "map.h"
 
+using namespace Maping;
+
 /**
  * @class Maze
  * @brief Classe que representa o labirinto, com métodos para gerar um labirinto aleatório, obter o mapa do labirinto e sobrecarga do operador por atribuição.
@@ -72,5 +74,11 @@ public:
 	/**
 	 * @brief Função que imprime o mapa do labirinto gerado, onde cada célula é representada por um caractere (█: parede, espaço: caminho, E: saída do labirinto).
 	 */
-	void ptintMaze();
+	void ptintMaze(bool exitPath);
+
+	/**
+	 * @brief Função utilitária para imprimir o caminho de saída.
+	 * @param path Vetor de posições representando o caminho de saída.
+	 */
+	void printExitPath();
 };

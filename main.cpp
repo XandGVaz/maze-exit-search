@@ -4,9 +4,12 @@
 using namespace Maping;
 
 int main() {
-    Maze maze(150, 39);
+    Maze maze(40, 20);
     maze.createMaze();
     std::cout << "Labirinto gerado:\n";
-    maze.ptintMaze();
+    maze.ptintMaze(true);
+
+    // Imprimir o caminho de saída
+    maze.printExitPath();
     return 0;
 }
