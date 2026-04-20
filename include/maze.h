@@ -4,8 +4,6 @@
 #include <vector>
 #include "map.h"
 
-using namespace Maping;
-
 /**
  * @class Maze
  * @brief Classe que representa o labirinto, com métodos para gerar um labirinto aleatório, obter o mapa do labirinto e sobrecarga do operador por atribuição.

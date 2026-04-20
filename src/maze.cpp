@@ -126,6 +126,13 @@ MapPosition Maze::toRandomMaze(){
 	// começa busca em profundidade a partir do meio do labirinto
 	createPaths(_mazeX/2, _mazeY/2, possibOuts);
 
+	// Verifica se há saídas disponíveis
+	if(possibOuts.empty()){
+		// Se não há saídas, retorna uma posição padrão na borda
+		std::cout << "Aviso: Nenhuma saída encontrada no labirinto!" << std::endl;
+		return {_mazeY - 2, _mazeX - 2};
+	}
+
 	// Motor com semente gerada por `rd`.
 	std::random_device rd;
 	std::mt19937 R(rd());
@@ -170,11 +177,12 @@ Maze& Maze::operator =(const Maze& maze2){
 }
 
 void Maze::ptintMaze(){
+	std::set<MapPosition> pathPositions;
 	for(long y = 0; y < _mazeY; y++){
 		for(long x = 0; x < _mazeX; x++){
-			if (y == _mazeStart.first && x == _mazeStart.second) {
+			if (y == _mazeStart.first && x == _mazeStart.second)
 				std::cout << "S"; // Símbolo de início
-			} else if (_mazeMap[y][x] == 1)
+			else if (_mazeMap[y][x] == 1)
 				std::cout << "█"; // Parede
 			else if (_mazeMap[y][x] == 0)
 				std::cout << " "; // Caminho
@@ -184,120 +192,6 @@ void Maze::ptintMaze(){
 				std::cout << "?"; // Valor desconhecido
 		}
 		std::cout << std::endl;
-	}
-}
-
-struct CompareNode {
-    bool operator()(const MapNode& a, const MapNode& b) const {
-        return (a.g + a.h) < (b.g + b.h);
-    }
-};
-
-
-MapNode createMapNode(Map map, MapPosition position, const MapNode* previousNode, MapPosition finalPosition){
-	MapNode node;
-	node.position = position;
-	node.previousNode = nullptr;
-	node.g = 0;
-	if(previousNode != nullptr){
-		node.g = previousNode->g + PATH_COST_SCALE;
-	}
-	node.h = distance(position, finalPosition);
-	node.mapValue = getMapValue(map, position);
-	return node;
-}
-
-void stochastic(Map map, const MapNode* actualNode, std::set<MapNode, CompareNode> &openNodes, std::vector<MapNode> &closeNodes, const MapNode* finalNode){
-	
-	// Se a lista de nós abertos está vaziao, e a função retorna sem encontrar um caminho
-	if(openNodes.empty()){
-		return;
-	}
-
-	// Se o nó atual é igual ao nó final, a função retorna, indicando que o caminho foi encontrado
-	if(actualNode->position == finalNode->position){
-		return;
-	}
-
-	// Vetor de nós vizinhos do nó atual, ou seja, os nós que estão adjacentes ao nó atual e que podem ser visitados a partir do nó atual
-	std::vector<MapNode> neighbors;
-	
-	// Posições do nó atual, do nó final e das células vizinhas (acima, abaixo, à direita e à esquerda) do nó atual
-	MapPosition actualPosition = actualNode->position;
-	MapPosition finalPosition = finalNode->position;
-	MapPosition abovePosition = {actualPosition.first + 1, actualPosition.second};
-	MapPosition belowPosition = {actualPosition.first - 1, actualPosition.second};
-	MapPosition rightPosition = {actualPosition.first, actualPosition.second + 1};
-	MapPosition leftPosition  = {actualPosition.first, actualPosition.second - 1};
-
-	// Para cada célula vizinha do nó atual, se a célula vizinha é um caminho (valor 0 no mapa), cria-se um nó para a célula vizinha e adiciona-se o nó ao vetor de nós vizinhos
-	if(getMapValue(map, abovePosition) == 0){
-		neighbors.push_back(createMapNode(map, abovePosition, actualNode, finalPosition));
-	}
-	if(getMapValue(map, belowPosition) == 0){
-		neighbors.push_back(createMapNode(map, belowPosition, actualNode, finalPosition));
-	}
-	if(getMapValue(map, rightPosition) == 0){
-		neighbors.push_back(createMapNode(map, rightPosition, actualNode, finalPosition));
-	}
-	if(getMapValue(map, leftPosition) == 0){
-		neighbors.push_back(createMapNode(map, leftPosition, actualNode, finalPosition));
-	}
-
-	// Percorre-se o vetor de nós vizinhos do nó atual
-	for(auto neighbor = neighbors.begin(); neighbor != neighbors.end(); neighbor++){
-		// Se o nó vizinho já está na lista de nós fechados, parte-se para o próximo nó vizinho
-		if(std::find(closeNodes.begin(), closeNodes.end(), neighbor) != closeNodes.end()){
-			continue;
-		}
-
-		// Se o nó vizinho já está na lista de nós abertos, verifica-se se o custo do caminho para o nó vizinho é menor do que o custo do caminho para o nó vizinho
-		// através do nó atual. Se for menor, remove-se o nó vizinho da lista de nós abertos para que ele seja atualizado com o novo custo mais baixo
-		auto openNodeIt = openNodes.find(*neighbor);
-		if(openNodeIt != openNodes.end()){
-			if(openNodeIt->g + openNodeIt->h <= neighbor->g + neighbor->h){
-				continue;
-			}
-			openNodes.erase(openNodeIt);
-		}
-
-		// Adiciona-se o nó vizinho à lista de nós abertos para que ele seja visitado posteriormente
-		openNodes.insert(*neighbor);
-	}
-
-	// Adiciona-se o nó atual à lista de nós fechados para que ele não seja visitado novamente
-	closeNodes.push_back(*actualNode);
-
-	// Seleciona-se o próximo nó a ser visitado, que é o nó com o menor custo total (g + h) na lista de nós abertos
-	auto proxNodeIt = openNodes.begin();
-	const MapNode* proxNode = &(*proxNodeIt);
-
-	// Chama-se recursivamente a função stochastic para o próximo nó a ser visitado
-	stochastic(map, &(*openNodes.begin()), openNodes, closeNodes, finalNode);
-}
-
-Path getExitPath(Map map, MapPosition start, MapPosition final){
-	// Vetores de nós abertos e fechados para o algoritmo A*
-	std::set<MapNode, CompareNode> openNodes;
-	std::vector<MapNode> closedNodes;
-
-	// Nó inicial e nó final do algoritmo A*
-	MapNode startNode = createMapNode(map, start, nullptr, final);
-	MapNode finalNode = createMapNode(map, start, nullptr, final);
-	
-	// Insere nó inicial na lista de nós abertos
-	openNodes.insert(startNode);
-
-	// Insere o nó inicial na lista de nós abertos
-	stochastic(map, &startNode, openNodes, closedNodes, &finalNode);
-
-	// Vetor de posições do caminho da célula de início até a célula de saída do labirinto
-	Path path;
-
-	// Recupera melhor caminho recuperando-o a partir do nó final, seguindo os nós anteriores até chegar no nó inicial, 
-	//e adicionando as posições dos nós ao vetor de posições do caminho 
-	for(const MapNode* node = &finalNode; node != nullptr; node = node->previousNode){
-		path.push_back(node->position);
 	}
 }
 
