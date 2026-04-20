@@ -4,8 +4,6 @@
 #include <vector>
 #include "map.h"
 
-using namespace Maping;
-
 /**
  * @class Maze
  * @brief Classe que representa o labirinto, com métodos para gerar um labirinto aleatório, obter o mapa do labirinto e sobrecarga do operador por atribuição.
@@ -13,7 +11,10 @@ using namespace Maping;
  *        0: caminho, 1: parede, 7: saída do labirinto.
  */
 class Maze{
-	Map  _mazeMap; 	   		// Mapa do labirinto representado por uma matriz de bytes, onde cada célula é representada por um número inteiro (0: caminho, 1: parede, 7: saída do labirinto)
+	/**
+	 * @brief Mapa do labirinto, representado por uma matriz de bytes, onde cada célula é representada por um número inteiro (0: caminho, 1: parede, 7: saída do labirinto).
+	 */
+	Map  _mazeMap; 	   	
 protected:
 	/**
 	 * @brief Função recursiva que cria os caminhos do labirinto a partir de uma célula de origem, utilizando busca em profundidade, e armazena as possíveis saídas do labirinto em um Matriz de pares de posições.
@@ -54,25 +55,25 @@ public:
 	 * @brief Função que retorna o tamanho do labirinto em X.
 	 * @return Tamanho do labirinto em X.
 	 */
-	long getMazeXLenght(){ return _mazeMap.getMapXLenght(); }
+	long getMazeXLenght() const { return _mazeMap.getMapXLenght(); }
 
 	/**
 	 * @brief Função que retorna o tamanho do labirinto em Y.
 	 * @return Tamanho do labirinto em Y.
 	 */
-	long getMazeYLenght(){ return _mazeMap.getMapYLenght(); }
+	long getMazeYLenght() const { return _mazeMap.getMapYLenght(); }
 
 	/**
 	 * @brief Função que retorna a posição da célula de início do labirinto, representada por um par de inteiros (índice da célula de início).
 	 * @return Par de inteiros que representa a posição da célula de início do labirinto (índice da célula de início).
 	 */
-	MapPosition getStart(){ return _mazeMap.getStart(); }
+	MapPosition getStart() const { return _mazeMap.getStart(); }
 
 	/**
 	 * @brief Função que retorna a posição da célula de saída do labirinto, representada por um par de inteiros (índice da célula de saída).
 	 * @return Par de inteiros que representa a posição da célula de saída do labirinto (índice da célula de saída).
 	 */
-	MapPosition getExit(){ return _mazeMap.getExit(); }
+	MapPosition getExit() const { return _mazeMap.getExit(); }
 
 	/**
 	 * @brief Sobrecarga do operador por atribuição, que copia o tamanho do labirinto em X e Y, o mapa do labirinto e a posição da célula de saída de um objeto da classe Maze para outro objeto da classe Maze.

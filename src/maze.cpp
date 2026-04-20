@@ -129,10 +129,10 @@ MapPosition Maze::toRandomMaze(){
 	_mazeMap(randomOut.second) = EXIT_CELL;
 
 	// Marca a posição de saída do labirinto
-	_mazeMap.setExit(randomOut.first);
+	_mazeMap.setExit(randomOut.second);
 
 	// Retorna índice da célula de saída do labirinto 
-	return randomOut.first;
+	return randomOut.second;
 }
 
 Map& Maze::createMaze(){
@@ -168,16 +168,17 @@ void Maze::ptintMaze(Path exitPath) {
 				continue;
 			}
 			if(!emptyExitPath){
-				if(std::find(exitPath.begin(), exitPath.end(), currentPos) != exitPath.end()) 
-					std::cout << "o"; // Caminho da saída
+				if(std::find(exitPath.begin(), exitPath.end(), currentPos) != exitPath.end()){
+					std::cout << "x"; // Caminho da saída
+					continue;
+				}
+			}
+			if(_mazeMap(currentPos) == PATH_CELL){
+				std::cout << " "; // Caminho
 				continue;
 			}
 			if(_mazeMap(currentPos) == WALL_CELL){
 				std::cout << "█"; // Parede
-				continue;
-			}
-			if(_mazeMap(currentPos) == PATH_CELL){
-				std::cout << " "; // Caminho
 				continue;
 			}
 			if(_mazeMap(currentPos) == EXIT_CELL){
