@@ -7,9 +7,6 @@ int main() {
     Maze maze(40, 20);
     maze.createMaze();
     std::cout << "Labirinto gerado:\n";
-    maze.ptintMaze(true);
-
-    // Imprimir o caminho de saída
-    maze.printExitPath();
+    maze.ptintMaze();
     return 0;
 }

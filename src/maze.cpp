@@ -3,22 +3,7 @@
 #include <iostream>
 #include <set>
 
-Maze::Maze(long map_x_lenght, long map_y_lenght){
-	_mazeX = map_x_lenght;
-	_mazeY = map_y_lenght;
-	_mazeMap = getEmptyMap(map_x_lenght, map_y_lenght);
-	_mazeStart = {map_y_lenght/2, map_x_lenght/2};
-}
-
-Maze::~Maze(){
-	for(long i = 0; i < _mazeY; i++){
-		delete[] _mazeMap[i];
-	}
-	delete[] _mazeMap;
-}
-
-void Maze::createPaths(long x_origin, long y_origin, std::vector<std::pair<MapPosition,MapPosition>> &possibOuts){
-
+void Maze::createPaths(long yOrigin, long xOrigin, std::vector<std::pair<MapPosition,MapPosition>> &possibOuts){
 	// Número que representa a direção e sentido da próxima célula
 	long d = 0;
 
@@ -33,14 +18,15 @@ void Maze::createPaths(long x_origin, long y_origin, std::vector<std::pair<MapPo
 	std::shuffle(v.begin(), v.end(), R);
 
 	// marca posição atual como caminho
-	_mazeMap [y_origin][x_origin] = 0;
+	MapPosition currentPos = {yOrigin, xOrigin};
+	_mazeMap(currentPos) = 0;
 
 	// Busca em profundidade em células vizinhas
 	for(long i = 0; i < 4; i++){
 
 		// x e y da célula de origem
-		long x = x_origin;
-		long y = y_origin;
+		long x = xOrigin;
+		long y = yOrigin;
 
 		// Direção atual do for
 		d = v[i];
@@ -54,11 +40,11 @@ void Maze::createPaths(long x_origin, long y_origin, std::vector<std::pair<MapPo
 		}
 		
 		// Se célula vizinha conhecidir com parede ou estiver fora do labirinto, parte-se para próxima
-		if(x <= 0 || x >= _mazeX -1 || y <= 0 || y >= _mazeY -1){
+		if(x <= 0 || x >= _mazeMap.getMapXLenght() -1 || y <= 0 || y >= _mazeMap.getMapYLenght() -1){
 			
 			// Flag para o caso em que a célula vizinha está fora do labirinto
 			bool flag = false;
-			if(x < 0 || x > _mazeX -1 || y < 0 || y > _mazeY -1) flag = true;
+			if(x < 0 || x > _mazeMap.getMapXLenght() -1 || y < 0 || y > _mazeMap.getMapYLenght() -1) flag = true;
 			
 			// Par da saída (célula do meio entre a atual e a vizinha, célula vizinha)
 			std::pair<MapPosition,MapPosition> out;
@@ -92,45 +78,40 @@ void Maze::createPaths(long x_origin, long y_origin, std::vector<std::pair<MapPo
 		}
 
 		// Se a célula vizinha já foi vizitada, parte-se para a próxima
-		if(_mazeMap[y][x] == 0)
+		if(_mazeMap(y,x) == 0)
 			continue;
 
 		// Caso contrário, célula entre a atual e a vizinha (2 unidades de distância), marcamos
 		//célula no meio entre as duas como caminho
 		switch(d){
-			case 0: _mazeMap[y][x-1] = 0; break;
-			case 1: _mazeMap[y][x+1] = 0; break;
-			case 2: _mazeMap[(y-1)][x] = 0; break;
-			case 3: _mazeMap[(y+1)][x] = 0; break;
+			case 0: _mazeMap(y, x-1) = 0; break;
+			case 1: _mazeMap(y, x+1) = 0; break;
+			case 2: _mazeMap(y-1, x) = 0; break;
+			case 3: _mazeMap(y+1, x) = 0; break;
 		}
 		
 		// Busca em profundidade da célula vizinha
-		createPaths(x, y, possibOuts);	
+		createPaths(y, x, possibOuts);	
 	}
 
 }
 
 MapPosition Maze::toRandomMaze(){
-	// Deleta o labirinto atual
-	for(long i = 0; i < _mazeY; i++){
-		delete[] _mazeMap[i];
-	}
-	delete[] _mazeMap;
-
 	// Cria-se um labirinto somente com paredes ( _maze[j] != 0 para todo j )
-	_mazeMap = getFilledMap(_mazeX, _mazeY);
+	_mazeMap.toFilledMap(WALL_CELL);
 
 	// Vetor de possíveis saídas do labirinto
 	std::vector<std::pair<MapPosition,MapPosition>> possibOuts;
 		
-	// começa busca em profundidade a partir do meio do labirinto
-	createPaths(_mazeX/2, _mazeY/2, possibOuts);
+	// começa busca em profundidade a partir do início do labirinto, que é o meio do mapa, e armazena as possíveis saídas do labirinto em um vetor de pares de posições
+	long xOrigin = _mazeMap.getStart().second;
+	long yOrigin = _mazeMap.getStart().first;
+	createPaths(yOrigin, xOrigin, possibOuts);
 
 	// Verifica se há saídas disponíveis
 	if(possibOuts.empty()){
 		// Se não há saídas, retorna uma posição padrão na borda
-		std::cout << "Aviso: Nenhuma saída encontrada no labirinto!" << std::endl;
-		return {_mazeY - 2, _mazeX - 2};
+		return {_mazeMap.getMapXLenght() - 2, _mazeMap.getMapYLenght() - 2};
 	}
 
 	// Motor com semente gerada por `rd`.
@@ -144,73 +125,68 @@ MapPosition Maze::toRandomMaze(){
 	std::pair<MapPosition,MapPosition> randomOut = possibOuts[dist(R)];
 
 	// Marca a saída como caminho
-	_mazeMap[randomOut.first.first][randomOut.first.second] = 7;
-	_mazeMap[randomOut.second.first][randomOut.second.second] = 7;
+	_mazeMap(randomOut.first) = EXIT_CELL;
+	_mazeMap(randomOut.second) = EXIT_CELL;
 
-	// Retorna índice da célula de saída do labirinto
-	return randomOut.second;
+	// Marca a posição de saída do labirinto
+	_mazeMap.setExit(randomOut.first);
+
+	// Retorna índice da célula de saída do labirinto 
+	return randomOut.first;
 }
 
-Map Maze::createMaze(){
-	_mazeExit = this->toRandomMaze();
+Map& Maze::createMaze(){
+	// Gera um labirinto aleatório e retorna o mapa do labirinto gerado
+	this->toRandomMaze();
+
+	// Retorna o mapa do labirinto gerado, representado por uma matriz de bytes
 	return this->getMazeMap();
 }
 
 Maze& Maze::operator =(const Maze& maze2){
-	// Copia o tamanho do labirinto em X e Y e inicializa o mapa do labirinto como um mapa vazio
-	_mazeX = maze2._mazeX;
-	_mazeY = maze2._mazeY;
-	_mazeMap = getEmptyMap(_mazeX, _mazeY);
-
-	// Copia o mapa do labirinto de maze2 para o labirinto atual
-	for(long x = 0; x < _mazeX; x++){
-		for(long y = 0; y < _mazeY; y++){
-			_mazeMap[y][x] = maze2._mazeMap[y][x];
-		}
-	}
-	
-	// Copia a posição da saída do labirinto de maze2 para o labirinto atual
-	_mazeExit = maze2._mazeExit;
+	// Copia o mapa
+	_mazeMap = maze2._mazeMap;
 
 	// Retorna referência para o objeto da classe Maze que recebeu a cópia
 	return *this;
 }
 
-void Maze::ptintMaze(bool exitPath){
-	std::set<MapPosition> pathPositions;
-	if (exitPath) {
-		// Calcula o caminho do início até a saída
-		Path path = getExitPath(_mazeMap,_mazeStart, _mazeExit);
-		for (const auto& pos : path) {
-			pathPositions.insert(pos);
-		}
-	}
-	for(long y = 0; y < _mazeY; y++){
-		for(long x = 0; x < _mazeX; x++){
-			if (y == _mazeStart.first && x == _mazeStart.second) {
+void Maze::ptintMaze(Path exitPath) {
+	// Flag para o caso em que o caminho de saída é vazio
+	bool emptyExitPath = exitPath.empty();
+
+	// Par da posição atual do for
+	MapPosition currentPos;
+	for(long y = 0; y < _mazeMap.getMapYLenght(); y++){
+		for(long x = 0; x < _mazeMap.getMapXLenght(); x++){
+			// Atualiza a posição atual do for
+			currentPos = {y, x};
+
+			// Imprime conforme o valor de cada célula do labirinto
+			if(currentPos == _mazeMap.getStart()){
 				std::cout << "S"; // Símbolo de início
-			} else if (exitPath && pathPositions.count({y, x})) {
-				std::cout << "o"; // Caminho da saída
-			} else if (_mazeMap[y][x] == 1)
+				continue;
+			}
+			if(!emptyExitPath){
+				if(std::find(exitPath.begin(), exitPath.end(), currentPos) != exitPath.end()) 
+					std::cout << "o"; // Caminho da saída
+				continue;
+			}
+			if(_mazeMap(currentPos) == WALL_CELL){
 				std::cout << "█"; // Parede
-			else if (_mazeMap[y][x] == 0)
+				continue;
+			}
+			if(_mazeMap(currentPos) == PATH_CELL){
 				std::cout << " "; // Caminho
-			else if (_mazeMap[y][x] == 7)
+				continue;
+			}
+			if(_mazeMap(currentPos) == EXIT_CELL){
 				std::cout << "E"; // Saída
-			else
-				std::cout << "?"; // Valor desconhecido
+				continue;
+			}
+			std::cout << "?"; // Valor desconhecido
 		}
 		std::cout << std::endl;
 	}
-}
-
-// Função utilitária para imprimir o caminho de saída
-void Maze::printExitPath() {
-	Path path = getExitPath(_mazeMap, _mazeStart, _mazeExit);
-	std::cout << "Caminho de saída (Path):\n";
-	for (const auto& pos : path) {
-		std::cout << "(" << pos.first << ", " << pos.second << ") ";
-	}
-	std::cout << std::endl;
 }
 

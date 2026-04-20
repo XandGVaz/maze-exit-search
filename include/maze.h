@@ -13,19 +13,15 @@ using namespace Maping;
  *        0: caminho, 1: parede, 7: saída do labirinto.
  */
 class Maze{
-	long _mazeX; 	   		// Tamanho do labirinto em X
-	long _mazeY; 	   		// Tamanho do labirinto em Y
 	Map  _mazeMap; 	   		// Mapa do labirinto representado por uma matriz de bytes, onde cada célula é representada por um número inteiro (0: caminho, 1: parede, 7: saída do labirinto)
-	MapPosition _mazeExit; 	// Par de inteiros que representa a posição da saída do labirinto (índice da célula de saída)
-	MapPosition _mazeStart; // Par de inteiros que representa a posição da célula de início do labirinto (índice da célula de início)
 protected:
 	/**
 	 * @brief Função recursiva que cria os caminhos do labirinto a partir de uma célula de origem, utilizando busca em profundidade, e armazena as possíveis saídas do labirinto em um Matriz de pares de posições.
-	 * @param x_origin Coordenada X da célula de origem
-	 * @param y_origin Coordenada Y da célula de origem
+	 * @param yOrigin  Coordenada Y da célula de origem
+	 * @param xOrigin Coordenada X da célula de origem
 	 * @param possibOuts Vetor de pares de posições que representa as possíveis saídas do labirinto, onde cada par é formado por uma posição de célula do meio e uma posição de célula vizinha que está fora do labirinto (saída do labirinto).
 	 */
-	void createPaths(long x_origin, long y_origin, std::vector<std::pair<MapPosition,MapPosition>> &possibOuts);
+	void createPaths(long yOrigin, long xOrigin, std::vector<std::pair<MapPosition,MapPosition>> &possibOuts);
 	
 	/**
 	 * @brief Função que gera um labirinto aleatório, preenchendo o mapa do labirinto com paredes e criando os caminhos do labirinto a partir de uma célula de início, utilizando busca em profundidade, e escolhendo uma saída aleatória entre as possíveis saídas do labirinto.
@@ -36,33 +32,47 @@ protected:
 public:
 	/**
 	 * @brief Construtor da classe Maze, que inicializa o tamanho do labirinto em X e Y, o mapa do labirinto como um mapa vazio e a posição da célula de início como o meio do labirinto.
-	 * @param map_x_lenght Tamanho do labirinto em X
-	 * @param map_y_lenght Tamanho do labirinto em Y
+	 * @param mapXLenght Tamanho do labirinto em X
+	 * @param mapYLenght Tamanho do labirinto em Y
 	 */
-	Maze(long map_x_lenght, long map_y_lenght);
-
-	/**
-	 * @brief Destrutor da classe Maze, que libera a memória alocada para o mapa do labirinto.
-	 */
-	~Maze();
+	Maze(long mapXLenght, long mapYLenght): 
+		_mazeMap(mapXLenght, mapYLenght, {mapYLenght/2, mapXLenght/2}){}
 
 	/**
 	 * @brief Função que gera um labirinto aleatório, preenchendo o mapa do labirinto com paredes e criando os caminhos do labirinto a partir de uma célula de início, utilizando busca em profundidade, e escolhendo uma saída aleatória entre as possíveis saídas do labirinto.
 	 * @return Matriz de bytes que representa o mapa do labirinto gerado, onde cada célula é representada por um número inteiro (0: caminho, 1: parede, 7: saída do labirinto).
 	 */
-	Map createMaze();
+	Map& createMaze();
 
 	/**
 	 * @brief Função que retorna o mapa do labirinto gerado, representado por uma matriz de bytes, onde cada célula é representada por um número inteiro (0: caminho, 1: parede, 7: saída do labirinto).
 	 * @return Matriz de bytes que representa o mapa do labirinto gerado.
 	 */
-	Map getMazeMap(){ return _mazeMap; }
+	Map& getMazeMap(){ return _mazeMap; }
+
+	/**
+	 * @brief Função que retorna o tamanho do labirinto em X.
+	 * @return Tamanho do labirinto em X.
+	 */
+	long getMazeXLenght(){ return _mazeMap.getMapXLenght(); }
+
+	/**
+	 * @brief Função que retorna o tamanho do labirinto em Y.
+	 * @return Tamanho do labirinto em Y.
+	 */
+	long getMazeYLenght(){ return _mazeMap.getMapYLenght(); }
+
+	/**
+	 * @brief Função que retorna a posição da célula de início do labirinto, representada por um par de inteiros (índice da célula de início).
+	 * @return Par de inteiros que representa a posição da célula de início do labirinto (índice da célula de início).
+	 */
+	MapPosition getStart(){ return _mazeMap.getStart(); }
 
 	/**
 	 * @brief Função que retorna a posição da célula de saída do labirinto, representada por um par de inteiros (índice da célula de saída).
 	 * @return Par de inteiros que representa a posição da célula de saída do labirinto (índice da célula de saída).
 	 */
-	MapPosition getExit(){ return _mazeExit; }
+	MapPosition getExit(){ return _mazeMap.getExit(); }
 
 	/**
 	 * @brief Sobrecarga do operador por atribuição, que copia o tamanho do labirinto em X e Y, o mapa do labirinto e a posição da célula de saída de um objeto da classe Maze para outro objeto da classe Maze.
@@ -72,13 +82,8 @@ public:
 	Maze& operator =(const Maze& maze2);
 	
 	/**
-	 * @brief Função que imprime o mapa do labirinto gerado, onde cada célula é representada por um caractere (█: parede, espaço: caminho, E: saída do labirinto).
+	 * @brief Função que imprime o labirinto no console, utilizando caracteres para representar as paredes, os caminhos, a célula de início e a célula de saída do labirinto. Se um caminho de saída for fornecido, ele também será impresso no console.
+	 * @param exitPath Vetor de posições representando o caminho de saída. Se o vetor estiver vazio, o caminho de saída não será impresso.
 	 */
-	void ptintMaze(bool exitPath);
-
-	/**
-	 * @brief Função utilitária para imprimir o caminho de saída.
-	 * @param path Vetor de posições representando o caminho de saída.
-	 */
-	void printExitPath();
+	void ptintMaze(Path exitPath = {});
 };
