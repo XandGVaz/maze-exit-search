@@ -1,23 +1,17 @@
-#include <iostream>
-#include "maze.h"
-#include "graph.h"
+#include "benchmark.h"
 
 int main() {
-    // Cria um labirinto aleatório
-    Maze maze(40, 23);
-    maze.createMaze();
-    std::cout << "Labirinto gerado:\n";
-    maze.ptintMaze();
+    // Tamanhos de labirintos a testar
+    std::vector<std::pair<long, long>> sizes = {
+        {20, 15},   // Pequeno
+        {30, 20},   // Médio-pequeno
+        {40, 23},   // Médio
+        {50, 30},   // Médio-grande
+        {60, 35}    // Grande
+    };
     
-    // Cria um grafo a partir do mapa do labirinto
-    Graph graph(maze.getMazeMap());
-    
-    // Encontra o caminho de saída utilizando o algoritmo A*
-    Path exitPath = graph.getExitPath(A_STAR_ALGORITHM);
-    
-    // Imprime o labirinto com o caminho de saída
-    std::cout << "\nLabirinto com o caminho de saída (A*):\n";
-    maze.ptintMaze(exitPath);
+    // Executar benchmark
+    runBenchmark(sizes);
     
     return 0;
 }
