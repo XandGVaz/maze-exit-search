@@ -68,7 +68,6 @@ O projeto compara dois algoritmos de busca em labirintos de tamanhos crescentes:
 ### Conclusões
 
 **A* vs DFS:**
-- **Crescimento de complexidade**: A* cresce 36.33x enquanto DFS cresce 48x
 - **Eficiência consistente**: A* mantém-se entre 1.4x e 1.9x mais rápido que DFS em todos os tamanhos
 - **Escalabilidade**: Ambos os algoritmos crescem exponencialmente, mas A* cresce mais lentamente
 - **Implementação heurística**: O uso de heurística Manhattan no A* demonstra redução consistente do espaço de busca
