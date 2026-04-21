@@ -51,6 +51,29 @@ cmake --build .
 - **Demonstração**: Gera labirinto 20x15 e encontra saída com A*
 - **Benchmark**: Testa em 5 tamanhos diferentes de labirintos (30 execuções por tamanho para média estatística)
 
+## Geração de Labirintos Aleatórios
+
+### Algoritmo: Recursive Backtracking (Profundidade)
+
+O projeto utiliza o algoritmo **Recursive Backtracking**, um método clássico para gerar labirintos aleatórios :
+
+**Processo:**
+1. Inicia na célula central do mapa
+2. Marca a célula atual como caminho
+3. Seleciona aleatoriamente uma de 4 direções (Norte, Sul, Leste, Oeste)
+4. Move 2 células na direção escolhida
+5. Se a célula vizinha é parede (não visitada):
+   - Marca ambas as células intermediárias como caminho
+   - Continua recursivamente da nova célula
+6. Se todas as direções foram exploradas, volta ao passo anterior
+7. Rastreia possíveis saídas enquanto constrói o labirinto
+8. Escolhe uma saída aleatória entre as encontradas
+
+**Características:**
+- Garante um caminho conectado entre entrada e saída
+- Gera labirintos com uma única solução ótima
+- Representação em matriz: 0 = caminho, 1 = parede, 7 = saída
+
 ## Resultados de Desempenho
 
 ### Análise Comparativa (Média de 30 execuções)
