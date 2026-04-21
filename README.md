@@ -75,5 +75,3 @@ O projeto compara dois algoritmos de busca em labirintos de tamanhos crescentes:
 - **Implementação heurística**: O uso de heurística Manhattan no A* prova ser decisivo para reduzir o espaço de busca
 
 **Recomendação**: Para labirintos de qualquer tamanho significativo, A* é o algoritmo preferível, especialmente quando os labirintos ultrapassam 1000 células.
-=======
->>>>>>> 83026ac929e550e498edb7c1f8a6286fdef6907e
