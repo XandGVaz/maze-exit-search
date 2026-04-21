@@ -1,6 +1,6 @@
 # Maze Exit Search
 
-Algoritmo estocástico para encontrar a saída de um labirinto usando A* e DFS em C++23.
+Método para encontrar o caminho de saída de um labirinto usando A* e DFS implementados com C++23.
 
 ## Descrição
 
