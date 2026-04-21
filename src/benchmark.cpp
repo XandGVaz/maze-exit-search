@@ -82,7 +82,7 @@ void runBenchmark(const std::vector<std::pair<long, long>>& sizes) {
                   << std::setw(20) << std::fixed << std::setprecision(4) << (result.aStarTime / 1000.0)
                   << std::setw(20) << result.dfsTime
                   << std::setw(20) << std::fixed << std::setprecision(4) << (result.dfsTime / 1000.0)
-                  << std::setw(15) << std::fixed << std::setprecision(2) << speedup << "x"
+                  << std::setw(15) << std::fixed << std::setprecision(2) << speedup
                   << std::setw(12) << (result.aStarFound ? "✓ Sim" : "❌ Não")
                   << std::setw(12) << (result.dfsFound ? "✓ Sim" : "❌ Não")
                   << "\n";
@@ -94,11 +94,13 @@ void runBenchmark(const std::vector<std::pair<long, long>>& sizes) {
     std::cout << "\nANÁLISE DOS RESULTADOS:\n";
     std::cout << std::string(50, '-') << "\n";
     
+    // Encontrar tempos mínimos e máximos para A* e DFS
     long minAStar = results[0].aStarTime;
     long maxAStar = results[0].aStarTime;
     long minDFS = results[0].dfsTime;
     long maxDFS = results[0].dfsTime;
     
+    // Iterar pelos resultados para encontrar os tempos mínimos e máximos
     for (const auto& result : results) {
         if (result.aStarTime < minAStar) minAStar = result.aStarTime;
         if (result.aStarTime > maxAStar) maxAStar = result.aStarTime;
@@ -106,10 +108,12 @@ void runBenchmark(const std::vector<std::pair<long, long>>& sizes) {
         if (result.dfsTime > maxDFS) maxDFS = result.dfsTime;
     }
     
+    // Exibir análise de crescimento
     std::cout << "A* - Tempo mínimo: " << std::fixed << std::setprecision(4) << (minAStar / 1000.0) << " ms\n";
     std::cout << "A* - Tempo máximo: " << std::fixed << std::setprecision(4) << (maxAStar / 1000.0) << " ms\n";
     std::cout << "A* - Crescimento: " << std::fixed << std::setprecision(2) << (static_cast<double>(maxAStar) / minAStar) << "x\n\n";
     
+    // Exibir análise de crescimento para DFS
     std::cout << "DFS - Tempo mínimo: " << std::fixed << std::setprecision(4) << (minDFS / 1000.0) << " ms\n";
     std::cout << "DFS - Tempo máximo: " << std::fixed << std::setprecision(4) << (maxDFS / 1000.0) << " ms\n";
     std::cout << "DFS - Crescimento: " << std::fixed << std::setprecision(2) << (static_cast<double>(maxDFS) / minDFS) << "x\n";
