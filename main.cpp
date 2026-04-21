@@ -13,7 +13,7 @@ int main() {
     };
     
     // Demonstração com o primeiro tamanho
-    demonstrateMaze(sizes[0].first, sizes[0].second);
+    demonstrateMaze(sizes[3].first, sizes[3].second);
     
     // Executar benchmark
     runBenchmark(sizes);

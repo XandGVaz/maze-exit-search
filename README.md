@@ -74,6 +74,10 @@ O projeto utiliza o algoritmo **Recursive Backtracking**, um método clássico p
 - Gera labirintos com uma única solução ótima
 - Representação em matriz: 0 = caminho, 1 = parede, 7 = saída
 
+### Exemplo de Labirinto Gerado
+
+<img src="./docs/example.png" alt="Exemplo de labirinto gerado pelo algoritmo" />
+
 ## Resultados de Desempenho
 
 ### Análise Comparativa (Média de 30 execuções)
