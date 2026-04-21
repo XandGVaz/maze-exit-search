@@ -12,6 +12,7 @@ void runBenchmark(const std::vector<std::pair<long, long>>& sizes) {
     std::cout << std::string(90, '-') << "\n\n";
     
     std::vector<BenchmarkResult> results;
+    const int NUM_ITERATIONS = 30;  // Número de execuções por tamanho
     
     // Executar benchmark para cada tamanho
     for (const auto& size : sizes) {
@@ -20,36 +21,52 @@ void runBenchmark(const std::vector<std::pair<long, long>>& sizes) {
         
         std::cout << "Testando labirinto " << width << "x" << height << " (área: " << (width * height) << ")...\n";
         
-        // Criar labirinto
-        Maze maze(width, height);
-        maze.createMaze();
+        long totalAStarTime = 0;
+        long totalDFSTime = 0;
+        bool aStarFound = false;
+        bool dfsFound = false;
         
-        // Criar grafo
-        Graph graph(maze.getMazeMap());
+        // Executar 30 iterações
+        for (int i = 0; i < NUM_ITERATIONS; ++i) {
+            // Criar labirinto
+            Maze maze(width, height);
+            maze.createMaze();
+            
+            // Criar grafo
+            Graph graph(maze.getMazeMap());
+            
+            // Benchmark A*
+            auto startAStar = std::chrono::high_resolution_clock::now();
+            Path exitPathAStar = graph.getExitPath(A_STAR_ALGORITHM);
+            auto endAStar = std::chrono::high_resolution_clock::now();
+            auto durationAStar = std::chrono::duration_cast<std::chrono::microseconds>(endAStar - startAStar);
+            totalAStarTime += durationAStar.count();
+            aStarFound = !exitPathAStar.empty();
+            
+            // Benchmark DFS
+            auto startDFS = std::chrono::high_resolution_clock::now();
+            Path exitPathDFS = graph.getExitPath(DFS_ALGORITHM);
+            auto endDFS = std::chrono::high_resolution_clock::now();
+            auto durationDFS = std::chrono::duration_cast<std::chrono::microseconds>(endDFS - startDFS);
+            totalDFSTime += durationDFS.count();
+            dfsFound = !exitPathDFS.empty();
+        }
         
-        // Benchmark A*
-        auto startAStar = std::chrono::high_resolution_clock::now();
-        Path exitPathAStar = graph.getExitPath(A_STAR_ALGORITHM);
-        auto endAStar = std::chrono::high_resolution_clock::now();
-        auto durationAStar = std::chrono::duration_cast<std::chrono::microseconds>(endAStar - startAStar);
-        
-        // Benchmark DFS
-        auto startDFS = std::chrono::high_resolution_clock::now();
-        Path exitPathDFS = graph.getExitPath(DFS_ALGORITHM);
-        auto endDFS = std::chrono::high_resolution_clock::now();
-        auto durationDFS = std::chrono::duration_cast<std::chrono::microseconds>(endDFS - startDFS);
+        // Calcular média
+        long avgAStarTime = totalAStarTime / NUM_ITERATIONS;
+        long avgDFSTime = totalDFSTime / NUM_ITERATIONS;
         
         results.push_back({
             width,
             height,
             width * height,
-            durationAStar.count(),
-            durationDFS.count(),
-            !exitPathAStar.empty(),
-            !exitPathDFS.empty()
+            avgAStarTime,
+            avgDFSTime,
+            aStarFound,
+            dfsFound
         });
         
-        std::cout << "  ✓ Concluído\n\n";
+        std::cout << "  ✓ Concluído (30 execuções, médias calculadas)\n\n";
     }
     
     // Exibir tabela comparativa
