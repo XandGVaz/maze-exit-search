@@ -1,13 +1,13 @@
 # Maze Exit Search
 
-Algoritmo estocástico para encontrar a saída de um labirinto usando A* em C++23.
+Algoritmo estocástico para encontrar a saída de um labirinto usando A* e DFS em C++23.
 
 ## Descrição
 
 - Geração dinâmica de labirintos com obstáculos
-- Busca otimizada com algoritmo A*
+- Busca otimizada com algoritmo A* e DFS
 - Visualização do caminho encontrado
-- Benchmark de performance
+- Benchmark de performance entre algoritmos de busca
 - C++23 com otimizações
 
 ## Compilação e Execução
