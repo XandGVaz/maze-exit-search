@@ -1,6 +1,7 @@
 #include "graph.h"
 #include <algorithm>
 #include <iostream>
+#include <stack>
 
 /*======================================================= Implementação classe de Nodo =========================================================*/
 
@@ -135,12 +136,12 @@ Path Graph::getExitPath(SearchAlgorithm algorithm) {
     Path exitPath = {};
     MapPosition start = _map.getStart();
     MapPosition exit = _map.getExit();
-
+    
     // Se a posição de início é igual à posição de saída, retorna um caminho contendo apenas a posição de início/saída
     if(start == exit){
         return {start};
     }
-
+    
     // Se a posição de início ou a posição de saída são inválidas, retorna um caminho vazio
     if(!_map.positionIsValid(start) || !_map.positionIsValid(exit)){
         return {};
@@ -166,10 +167,6 @@ Path Graph::aStarSearch(MapPosition start, MapPosition exit) {
     // Caminho de saída, inicialmente vazio, pois possa ser que nenhum caminho até a saída seja de fato encontrado
     Path exitPath = {};
 
-    // Listas de nós abertos e fechados para o algoritmo A*
-    std::vector<Node*> visitedNodes;
-    std::set<Node*, CompareNodePointers> openNodes;
-
     // Obtém o nó inicial correspondente à posição de início do mapa
     Node* startNode = this->getNode(start);
     if(startNode == nullptr){
@@ -182,15 +179,8 @@ Path Graph::aStarSearch(MapPosition start, MapPosition exit) {
         return {};
     }
 
-    // Inicializa o nó inicial com custo g=0 e heurística h
-    startNode->setG(0);
-    startNode->setH(distance(start, exit));
-    
-    // Adiciona o nó inicial à lista de nós abertos
-    openNodes.insert(startNode);
-
     // Chama algoritmo A* recursivo para encontrar o caminho da célula de início até a célula de saída do labirinto
-    this->aStarRecursive(startNode, exit, openNodes, visitedNodes);
+    this->aStarInterative(startNode, exit);
 
     // Reconstrói o caminho de saída a partir do nó final encontrado
     // Percorre-se a lista de nós anteriores para reconstruir o caminho da célula de início até a célula de saída do labirinto, adicionando as posições dos nós ao caminho de saída
@@ -210,72 +200,79 @@ Path Graph::aStarSearch(MapPosition start, MapPosition exit) {
     return exitPath;
 }
 
-void Graph::aStarRecursive(Node* currentNode, MapPosition exit, std::set<Node*, CompareNodePointers>& openNodes, std::vector<Node*>& visitedNodes) {
-    // Se o nó atual é o nó de saída, adiciona-se o nó atual à lista de nós fechados e retorna
-    if(currentNode->getPos() == exit){
-        visitedNodes.push_back(currentNode);
-        return;
-    }
+void Graph::aStarInterative(Node* firstNode, MapPosition exit) {
+    // Listas de nós abertos e fechados para o algoritmo A*
+    std::set<Node*, CompareNodePointers> openNodes;
+    std::vector<Node*> closedNodes;
 
-    // Percorre nos vizinhos do nó atuale para cada vizinho, calcula-se o custo total f = g + h do nó vizinho
-    for(auto neighborPos : currentNode->getNeighbors()){
-        // Obtém o nó vizinho correspondente à posição do vizinho
-        Node* neighbor = this->getNode(neighborPos);
-        if(neighbor == nullptr){
-            continue;
+    // Inicializa o nó inicial com custo g=0 e heurística h
+    firstNode->setG(0);
+    firstNode->setH(distance(firstNode->getPos(), exit));
+    
+    // Adiciona o nó inicial à lista de nós abertos
+    openNodes.insert(firstNode);
+
+    while(!openNodes.empty()){
+        // Obtemos o nó da interção atual (topo da pilha)
+        Node* actualNode = *(openNodes.begin());
+
+        // Se o nó atual é o nó de saída, adiciona-se o nó atual à lista de nós fechados e retorna
+        if(actualNode->getPos() == exit){
+            closedNodes.push_back(actualNode);
+            return;
         }
-        
-        // Se o nó vizinho já está na lista de nós fechados, ignora-se o nó vizinho e continua para o próximo vizinho
-        if(std::find(visitedNodes.begin(), visitedNodes.end(), neighbor) != visitedNodes.end()){
-            continue;
-        }
-        
-        // Valores de custo para novo nó vizinho, a partir da chegada pelo nó atual, e custo heurístico para o nó vizinho
-        long g = currentNode->getG() + PATH_COST_SCALE;
-        long h = distance(neighbor->getPos(), exit);
-        long f = g + h;
-        
-        // Se o  nó vizinho está na lista de abertos, verifica-se se o custo total f é vai ser menor ou não caso o caminho para esse nó seja atualizado
-        // Caso sim, o nó prévio do vizinho é atualizado para o nó atual, e o custo g do nó vizinho é atualizado para o custo g do nó atual mais o custo de movimentação
-        auto neighbotOpenIt = std::find_if(openNodes.begin(), openNodes.end(), [&](Node* node){
-            return node == neighbor;
-        });
-        if(neighbotOpenIt != openNodes.end()){
-            // Se o novo custo for maior/igual que o antigo custo do nó vizinho, ignora-se o nó vizinho e continua para o próximo vizinho
-            if((*neighbotOpenIt)->getF() <= f){
+    
+        // Percorre nos vizinhos do nó atuale para cada vizinho, calcula-se o custo total f = g + h do nó vizinho
+        for(auto neighborPos : actualNode->getNeighbors()){
+            // Obtém o nó vizinho correspondente à posição do vizinho
+            Node* neighbor = this->getNode(neighborPos);
+            if(neighbor == nullptr){
                 continue;
             }
             
-            // Caso o novo custo seja menor ao antigo custo do nó vizinho, remove-se o nó vizinho da lista de nós abertos para que ele seja atualizado com o novo custo mais baixo
-            openNodes.erase(neighbotOpenIt);
+            // Se o nó vizinho já está na lista de nós fechados, ignora-se o nó vizinho e continua para o próximo vizinho
+            if(std::find(closedNodes.begin(), closedNodes.end(), neighbor) != closedNodes.end()){
+                continue;
+            }
+            
+            // Valores de custo para novo nó vizinho, a partir da chegada pelo nó atual, e custo heurístico para o nó vizinho
+            long g = actualNode->getG() + PATH_COST_SCALE;
+            long h = distance(neighbor->getPos(), exit);
+            long f = g + h;
+            
+            // Se o  nó vizinho está na lista de abertos, verifica-se se o custo total f é vai ser menor ou não caso o caminho para esse nó seja atualizado
+            // Caso sim, o nó prévio do vizinho é atualizado para o nó atual, e o custo g do nó vizinho é atualizado para o custo g do nó atual mais o custo de movimentação
+            auto neighbotOpenIt = std::find_if(openNodes.begin(), openNodes.end(), [&](Node* node){
+                return node == neighbor;
+            });
+            if(neighbotOpenIt != openNodes.end()){
+                // Se o novo custo for maior/igual que o antigo custo do nó vizinho, ignora-se o nó vizinho e continua para o próximo vizinho
+                if((*neighbotOpenIt)->getF() <= f){
+                    continue;
+                }
+                
+                // Caso o novo custo seja menor ao antigo custo do nó vizinho, remove-se o nó vizinho da lista de nós abertos para que ele seja atualizado com o novo custo mais baixo
+                openNodes.erase(neighbotOpenIt);
+            }
+            
+            // Atualiza nó prévio, custo g e custo h do nó vizinho
+            neighbor->setPrevious(actualNode);
+            neighbor->setG(g);
+            neighbor->setH(h);
+    
+            // Adiciona-se o nó vizinho à lista de nós abertos para que ele seja visitado posteriormente
+            openNodes.insert(neighbor);
         }
-        
-        // Atualiza nó prévio, custo g e custo h do nó vizinho
-        neighbor->setPrevious(currentNode);
-        neighbor->setG(g);
-        neighbor->setH(h);
-
-        // Adiciona-se o nó vizinho à lista de nós abertos para que ele seja visitado posteriormente
-        openNodes.insert(neighbor);
+    
+        // Coloca nó atual na lista de nós fechados para que ele não seja visitado novamente
+        closedNodes.push_back(actualNode);
+    
+        // Tira nó atual da lista de nós abertos
+        auto actualNodeIt = std::find_if(openNodes.begin(), openNodes.end(), [&](Node* node){
+            return node == actualNode;
+        });
+        openNodes.erase(actualNodeIt);
     }
-
-    // Coloca nó atual na lista de nós fechados para que ele não seja visitado novamente
-    visitedNodes.push_back(currentNode);
-
-    // Tira nó atual da lista de nós abertos
-    auto currentOpenNodeIt = std::find_if(openNodes.begin(), openNodes.end(), [&](Node* node){
-        return node == currentNode;
-    });
-    openNodes.erase(currentOpenNodeIt);
-
-    // Se a lista de nós abertos está vazia, retorna, pois não há mais nós para visitar e o caminho até a saída não foi encontrado
-    if(openNodes.empty()){
-        return;
-    }
-
-    // Obtém o próximo nó a ser visitado, que é o nó com o menor custo total (f) na lista de nós abertos, e chama-se recursivamente a função A* para o próximo nó a ser visitado
-    Node* nextNode = *(openNodes.begin());
-    this->aStarRecursive(nextNode, exit, openNodes, visitedNodes);
 }
 
 Path Graph::dfsSearch(MapPosition start, MapPosition exit) {
@@ -303,18 +300,18 @@ Path Graph::dfsSearch(MapPosition start, MapPosition exit) {
     
 
     // Chama algoritmo A* recursivo para encontrar o caminho da célula de início até a célula de saída do labirinto
-    this->dfsRecursive(startNode, exit, visitedNodes);
+    this->dfsInterative(startNode, exit, visitedNodes);
 
     // Reconstrói o caminho de saída a partir do nó final encontrado
     // Percorre-se a lista de nós anteriores para reconstruir o caminho da célula de início até a célula de saída do labirinto, adicionando as posições dos nós ao caminho de saída
-    Node* currentNode = exitNode;
-    while(currentNode->getPrevious() != MapPosition{-1, -1}){
-        exitPath.push_back(currentNode->getPos());
-        currentNode = this->getNode(currentNode->getPrevious());
+    Node* firstNode = exitNode;
+    while(firstNode->getPrevious() != MapPosition{-1, -1}){
+        exitPath.push_back(firstNode->getPos());
+        firstNode = this->getNode(firstNode->getPrevious());
     }
     
     // Adiciona o nó inicial ao caminho
-    exitPath.push_back(currentNode->getPos());
+    exitPath.push_back(firstNode->getPos());
     
     // Inverte o caminho para que esteja na ordem correta (do início até a saída)
     std::reverse(exitPath.begin(), exitPath.end());
@@ -323,32 +320,46 @@ Path Graph::dfsSearch(MapPosition start, MapPosition exit) {
     return exitPath;
 }
 
-void Graph::dfsRecursive(Node* currentNode, MapPosition exit, std::vector<Node*>& visitedNodes) {
-    // Coloca nó atual na lista de nós visitados para que ele não seja visitado novamente
-    visitedNodes.push_back(currentNode);
-    
-    // Se o nó atual é o nó de saída, adiciona-se o nó atual à lista de nós visitados e retorna
-    if(currentNode->getPos() == exit){
-        return;
-    }
+void Graph::dfsInterative(Node* firstNode, MapPosition exit, std::vector<Node*>& visitedNodes) {
+    // Cria pilha para evitar excesso de recursão em caso de labirintos extensos
+    std::stack<Node*> nodeStack;
 
-    // Percorre nos vizinhos do nó atuale para cada vizinho, calcula-se o custo total f = g + h do nó vizinho
-    for(auto neighborPos : currentNode->getNeighbors()){
-        // Obtém o nó vizinho correspondente à posição do vizinho
-        Node* neighbor = this->getNode(neighborPos);
-        if(neighbor == nullptr){
-            continue;
+    // Primeiro nó da pilha é o nó inicial da busca em profundidade
+    nodeStack.push(firstNode);
+
+    // Cada interação é executada sobre o nó do topo da pilha de nodos
+    while(!nodeStack.empty()){
+        // Obtemos o nó da interção atual (topo da pilha)
+        Node* actualNode = nodeStack.top();
+        nodeStack.pop();
+
+        // Se o nó atual é o nó de saída, adiciona-se o nó atual à lista de nós visitados e retorna
+        if(actualNode->getPos() == exit){
+            return;
         }
         
-        // Se o nó vizinho já está na lista de nós fechados, ignora-se o nó vizinho e continua para o próximo vizinho
-        if(std::find(visitedNodes.begin(), visitedNodes.end(), neighbor) != visitedNodes.end()){
-            continue;
+        // Percorre nos vizinhos do nó atuale para cada vizinho, calcula-se o custo total f = g + h do nó vizinho
+        for(auto neighborPos : actualNode->getNeighbors()){
+            // Obtém o nó vizinho correspondente à posição do vizinho
+            Node* neighbor = this->getNode(neighborPos);
+            if(neighbor == nullptr){
+                continue;
+            }
+            
+            // Se o nó vizinho já está na lista de nós fechados, ignora-se o nó vizinho e continua para o próximo vizinho
+            if(std::find(visitedNodes.begin(), visitedNodes.end(), neighbor) != visitedNodes.end()){
+                continue;
+            }
+            
+            // Atualiza nó prévio, custo g e custo h do nó vizinho
+            neighbor->setPrevious(actualNode);
+            
+            // Adiciona vizinho na pilha
+            nodeStack.push(neighbor);
         }
         
-        // Atualiza nó prévio, custo g e custo h do nó vizinho
-        neighbor->setPrevious(currentNode);
-
-        this->dfsRecursive(neighbor, exit, visitedNodes);
+        // Coloca nó atual na lista de nós visitados para que ele não seja visitado novamente
+        visitedNodes.push_back(actualNode);
     }
 }
 

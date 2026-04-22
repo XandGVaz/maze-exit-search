@@ -150,14 +150,14 @@ protected:
      * @param openNodes Lista de nós abertos para o algoritmo A*, representada por um conjunto de ponteiros para objetos da classe Node, onde os nós são ordenados com base no custo total f do nó.
      * @param visitedNodes Lista de nós fechados para o algoritmo A*, representada por um vetor de ponteiros para objetos da classe Node, onde os nós são os nós já visitados pelo algoritmo A*.
      */
-    void aStarRecursive(Node* currentNode, MapPosition exit, std::set<Node*, CompareNodePointers>& openNodes, std::vector<Node*>& closedNodes);
+    void aStarInterative(Node* currentNode, MapPosition exit);
     /**
      * @brief Função recursiva que implementa o algoritmo de busca em profundidade (DFS) para encontrar o caminho da célula de início até a célula de saída do labirinto, utilizando uma lista de nós visitados para controlar os nós já visitados, e visitando os nós vizinhos de forma recursiva.
      * @param currentNode Nó atual a ser visitado, representado por um ponteiro para um objeto da classe Node.
      * @param exit Posição da célula de saída do labirinto, representada por um par de inteiros que representa a posição de uma célula do labirinto (coordenada X e coordenada Y).
      * @param visitedNodes Lista de nós visitados para o algoritmo de busca em profundidade (DFS), representada por um vetor de ponteiros para objetos da classe Node, onde os nós são os nós já visitados pelo algoritmo DFS.
      */
-    void dfsRecursive(Node* currentNode, MapPosition exit, std::vector<Node*>& visitedNodes);
+    void dfsInterative(Node* firstNode, MapPosition exit, std::vector<Node*>& visitedNodes);
 public:
     /**
      * @brief Construtor da classe Graph, que inicializa o grafo a partir do mapa do labirinto, criando os nós correspondentes às células do mapa que não são paredes, e estabelecendo as conexões entre os nós com base nas posições adjacentes no mapa.
