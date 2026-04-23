@@ -3,7 +3,7 @@
 #include <iostream>
 
 long distance(MapPosition pos1, MapPosition pos2) {
-	return (long)(PATH_COST_SCALE * (abs(pos2.first - pos1.first) + abs(pos2.second - pos1.second)));
+    return (long)(PATH_COST_SCALE * sqrt(pow(pos2.first - pos1.first, 2) + pow(pos2.second - pos1.second, 2)));
 }
 
 bool Map::positionIsValid(MapPosition pos) {
