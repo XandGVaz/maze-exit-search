@@ -12,6 +12,13 @@ Método para encontrar o caminho de saída de um labirinto usando A* e DFS imple
 
 ## Compilação e Execução
 
+### Com Docker
+
+```bash
+sudo docker build -t maze-exit-search .
+sudo docker run --rm maze-exit-search
+```
+
 ### Com Makefile
 
 ```bash
@@ -97,6 +104,6 @@ O projeto compara dois algoritmos de busca em labirintos de tamanhos crescentes:
 **A* vs DFS:**
 - **Eficiência consistente**: A* mantém-se entre 1.4x e 1.9x mais rápido que DFS em todos os tamanhos
 - **Escalabilidade**: Ambos os algoritmos crescem exponencialmente, mas A* cresce mais lentamente
-- **Implementação heurística**: O uso de heurística Manhattan no A* demonstra redução consistente do espaço de busca
+- **Implementação heurística**: O uso de heurística euclidiana no A* demonstra redução consistente do espaço de busca
 
 **Recomendação**: A* é o algoritmo preferível para qualquer aplicação prática, oferecendo speedup consistente com menor crescimento de complexidade.

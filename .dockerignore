@@ -1,0 +1,8 @@
+.git
+.gitignore
+.cache
+.Dockerignore
+Dockerfile
+.env
+build
+CMakeCache.txt
