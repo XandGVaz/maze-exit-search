@@ -12,7 +12,7 @@ void runBenchmark(const std::vector<std::pair<long, long>>& sizes) {
     std::cout << std::string(90, '-') << "\n\n";
     
     std::vector<BenchmarkResult> results;
-    const int NUM_ITERATIONS = 30;  // Número de execuções por tamanho
+    const long int NUM_ITERATIONS = 30;  // Número de execuções por tamanho
     
     // Executar benchmark para cada tamanho
     for (const auto& size : sizes) {
@@ -27,7 +27,7 @@ void runBenchmark(const std::vector<std::pair<long, long>>& sizes) {
         bool dfsFound = false;
         
         // Executar 30 iterações
-        for (int i = 0; i < NUM_ITERATIONS; ++i) {
+        for (long int i = 0; i < NUM_ITERATIONS; ++i) {
             // Criar labirinto
             Maze maze(width, height);
             maze.createMaze();

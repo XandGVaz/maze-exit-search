@@ -5,15 +5,15 @@
 int main() {
     // Tamanhos de labirintos a testar
     std::vector<std::pair<long, long>> sizes = {
-        {20, 15},   // Pequeno
-        {30, 20},   // Médio-pequeno
-        {40, 23},   // Médio
-        {50, 30},   // Médio-grande
-        {60, 35}    // Grande
+        {20, 20},   // Pequeno
+        {40, 40},   // Médio-pequeno
+        {60, 60},   // Médio
+        {80, 80},   // Médio-grande
+        {100, 100}  // Grande
     };
     
     // Demonstração com o primeiro tamanho
-    demonstrateMaze(sizes[3].first, sizes[3].second);
+    demonstrateMaze(sizes[2].first, sizes[2].second);
     
     // Executar benchmark
     runBenchmark(sizes);

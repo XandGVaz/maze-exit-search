@@ -17,12 +17,13 @@ class Maze{
 	Map  _mazeMap; 	   	
 protected:
 	/**
-	 * @brief Função recursiva que cria os caminhos do labirinto a partir de uma célula de origem, utilizando busca em profundidade, e armazena as possíveis saídas do labirinto em um Matriz de pares de posições.
-	 * @param yOrigin  Coordenada Y da célula de origem
-	 * @param xOrigin Coordenada X da célula de origem
-	 * @param possibOuts Vetor de pares de posições que representa as possíveis saídas do labirinto, onde cada par é formado por uma posição de célula do meio e uma posição de célula vizinha que está fora do labirinto (saída do labirinto).
+	 * @brief Função recursiva que cria os caminhos do labirinto a partir de uma célula de início, utilizando busca em profundidade, e armazenando as possíveis saídas do labirinto em um vetor de pares de posições, onde cada par de posições representa a posição da célula de saída do labirinto e a posição da célula de início do labirinto.
+	 * @param yOrigin Coordenada Y da célula de início do labirinto.
+	 * @param xOrigin Coordenada X da célula de início do labirinto.
+	 * @param possibOuts Vetor de pares de posições para armazenar as possíveis saídas do labirinto, onde cada par de posições representa a posição da célula de saída do labirinto e a posição da célula de início do labirinto.
+	 * @return Vetor de pares de posições que representa as possíveis saídas do labirinto, onde cada par de posições representa a posição da célula de saída do labirinto e a posição da célula de início do labirinto.
 	 */
-	void createPaths(long yOrigin, long xOrigin, std::vector<std::pair<MapPosition,MapPosition>> &possibOuts);
+	std::vector<std::pair<MapPosition,MapPosition>> createPaths(long yOrigin, long xOrigin);
 	
 	/**
 	 * @brief Função que gera um labirinto aleatório, preenchendo o mapa do labirinto com paredes e criando os caminhos do labirinto a partir de uma célula de início, utilizando busca em profundidade, e escolhendo uma saída aleatória entre as possíveis saídas do labirinto.

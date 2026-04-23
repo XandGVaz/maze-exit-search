@@ -279,9 +279,6 @@ Path Graph::dfsSearch(MapPosition start, MapPosition exit) {
     // Caminho de saída, inicialmente vazio, pois possa ser que nenhum caminho até a saída seja de fato encontrado
     Path exitPath = {};
 
-    // Listas de nós abertos e fechados para o algoritmo A*
-    std::vector<Node*> visitedNodes;
-
     // Obtém o nó inicial correspondente à posição de início do mapa
     Node* startNode = this->getNode(start);
     if(startNode == nullptr){
@@ -298,9 +295,8 @@ Path Graph::dfsSearch(MapPosition start, MapPosition exit) {
     startNode->setG(0);
     startNode->setH(distance(start, exit));
     
-
     // Chama algoritmo A* recursivo para encontrar o caminho da célula de início até a célula de saída do labirinto
-    this->dfsInterative(startNode, exit, visitedNodes);
+    this->dfsInterative(startNode, exit);
 
     // Reconstrói o caminho de saída a partir do nó final encontrado
     // Percorre-se a lista de nós anteriores para reconstruir o caminho da célula de início até a célula de saída do labirinto, adicionando as posições dos nós ao caminho de saída
@@ -320,7 +316,10 @@ Path Graph::dfsSearch(MapPosition start, MapPosition exit) {
     return exitPath;
 }
 
-void Graph::dfsInterative(Node* firstNode, MapPosition exit, std::vector<Node*>& visitedNodes) {
+void Graph::dfsInterative(Node* firstNode, MapPosition exit) {
+    // Listas de nós visitados para o algoritmo de busca em profundidade (DFS)
+    std::vector<Node*> visitedNodes;
+
     // Cria pilha para evitar excesso de recursão em caso de labirintos extensos
     std::stack<Node*> nodeStack;
 
